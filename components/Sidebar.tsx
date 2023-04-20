@@ -7,7 +7,7 @@ import MoreVerticalIcon from '@mui/icons-material/MoreVert';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
-import { auth } from '@/config/firebase';
+import { auth, db } from '@/config/firebase';
 import { signOut } from 'firebase/auth';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -16,7 +16,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useState } from 'react';
-
+import { useAuthState } from 'react-firebase-hooks/auth';
+import * as EmailValidator from 'email-validator';
+import { addDoc, collection, query, where } from 'firebase/firestore';
+import { useCollection } from 'react-firebase-hooks/firestore';
+import { Conversation } from '@/types';
+import { ConversationSelect } from './ConversationSelect';
 const StyledContainer = styled.div`
   height: 100vh;
   min-width: 300px;
@@ -65,16 +70,52 @@ const StyledSidebarButton = styled(Button)`
 `;
 
 export const Sidebar = () => {
+  const [loggedInUser, _loading, _error] = useAuthState(auth);
+
   const [isOpenNewConversationDialog, setIsOpenNewConversationDialog] =
     useState(false);
 
-  const [];
-  const handleClickOpen = () => {
-    setIsOpenNewConversationDialog(true);
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const toggleConversationDiaLog = (isOpen: boolean) => {
+    setIsOpenNewConversationDialog(isOpen);
+    if (!isOpen) {
+      setRecipientEmail('');
+    }
   };
+  const isInvitingSelf = recipientEmail === loggedInUser?.email;
 
   const handleClose = () => {
-    setIsOpenNewConversationDialog(false);
+    toggleConversationDiaLog(false);
+  };
+
+  const queryGetConversationsForCurrentUser = query(
+    collection(db, 'conversations'),
+    where('users', 'array-contains', loggedInUser?.email)
+  );
+  const [conversationSnapshot, __loading, __error1] = useCollection(
+    queryGetConversationsForCurrentUser
+  );
+
+  // Check if conversation already exists before creating a new one
+  const isConversationAlreadyExists = (recipientEmail: string) => {
+    return !!conversationSnapshot?.docs.find((doc) =>
+      (doc.data() as Conversation).users.includes(recipientEmail)
+    );
+  };
+
+  const createConversation = async () => {
+    if (!recipientEmail) return;
+    if (
+      EmailValidator.validate(recipientEmail) &&
+      !isInvitingSelf &&
+      !isConversationAlreadyExists(recipientEmail)
+    ) {
+      console.log('createConversation');
+      await addDoc(collection(db, 'conversations'), {
+        users: [loggedInUser?.email, recipientEmail],
+      });
+    }
+    handleClose();
   };
 
   const logout = async () => {
@@ -88,8 +129,8 @@ export const Sidebar = () => {
   return (
     <StyledContainer>
       <StyledHeader>
-        <Tooltip title='USER EMAIL' placement='right'>
-          <StyledUserAvatar />
+        <Tooltip title={loggedInUser?.email as string} placement='right'>
+          <StyledUserAvatar src={loggedInUser?.photoURL || ''} />
         </Tooltip>
         <div>
           <IconButton>
@@ -107,34 +148,50 @@ export const Sidebar = () => {
         <SearchIcon />
         <StyledSearchInput placeholder='Search in conversation' />
       </StyledSearch>
-      <StyledSidebarButton>Start a new conversation</StyledSidebarButton>
-      <div>
-        <Button variant='outlined' onClick={handleClickOpen}>
-          Open form dialog
-        </Button>
-        <Dialog open={isOpenNewConversationDialog} onClose={handleClose}>
-          <DialogTitle>Subscribe</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address
-              here. We will send updates occasionally.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin='dense'
-              id='name'
-              label='Email Address'
-              type='email'
-              fullWidth
-              variant='standard'
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose}>Subscribe</Button>
-          </DialogActions>
-        </Dialog>
-      </div>
+      <StyledSidebarButton
+        onClick={() => {
+          toggleConversationDiaLog(true);
+        }}
+      >
+        Start a new conversation
+      </StyledSidebarButton>
+
+      {/* List conversation */}
+      {/* <ConversationSelect key/> */}
+      {conversationSnapshot?.docs.map((conversation) => (
+        <ConversationSelect
+          key={conversation.id}
+          id={conversation.id}
+          conversationUser={(conversation.data() as Conversation).users}
+        />
+      ))}
+
+      <Dialog open={isOpenNewConversationDialog} onClose={handleClose}>
+        <DialogTitle>New conversation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please enter a Google email address for the user you wish to chat
+            with
+          </DialogContentText>
+          <TextField
+            autoFocus
+            label='Email Address'
+            type='email'
+            fullWidth
+            variant='standard'
+            value={recipientEmail}
+            onChange={(e) => {
+              setRecipientEmail(e.target.value);
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button disabled={!recipientEmail} onClick={createConversation}>
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
     </StyledContainer>
   );
 };
