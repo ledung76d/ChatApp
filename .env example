@@ -1,0 +1,6 @@
+NEXT_PUBLIC_APIKEY = 'aaaaaaaaaaaaaa'
+NEXT_PUBLIC_AUTHDOMAIN = 'aaaaaaaaaaaaaa'
+NEXT_PUBLIC_PROJECTID = 'aaaaaaaaaaaaaa'
+NEXT_PUBLIC_STORAGEBUCKET = 'aaaaaaaaaaaaaa'
+NEXT_PUBLIC_MESSAGINGSENDERID = 'aaaaaaaaaaaaaa'
+NEXT_PUBLIC_APPID= 'aaaaaaaaaaaaaa'
