@@ -37,7 +37,7 @@ const Login = () => {
   return (
     <StyledContainer>
       <Head>
-        <title>Login</title>
+        <h1>Login</h1>
       </Head>
 
       <StyledLoginContainer>
@@ -46,7 +46,7 @@ const Login = () => {
         </StyledImageWrapper>
 
         <Button variant='outlined' onClick={signIn}>
-          Sign in with Google
+          Sign in with Googles
         </Button>
       </StyledLoginContainer>
     </StyledContainer>
