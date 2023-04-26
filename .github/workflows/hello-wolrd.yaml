@@ -1,0 +1,10 @@
+name: hello
+on:
+  push:
+    branches: [dev]
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+    steps:
+        - run: echo Hello next js
+            
