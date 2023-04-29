@@ -1,7 +1,7 @@
-import { useRecipient } from '@/hooks/useRecipient';
-import { Conversation } from '@/types';
-import styled from 'styled-components';
-import RecipientAvatar from './RecipientAvatar';
+import { useRecipient } from '@/hooks/useRecipient'
+import { Conversation } from '@/types'
+import styled from 'styled-components'
+import RecipientAvatar from './RecipientAvatar'
 
 const StyledContainer = styled.div`
   display: flex;
@@ -12,21 +12,22 @@ const StyledContainer = styled.div`
   :hover {
     background-color: #e9eaeb;
   }
-`;
+`
 
 export const ConversationSelect = ({
+  // eslint-disable-next-line no-unused-vars
   id,
   conversationUser,
 }: {
-  id: string;
-  conversationUser: Conversation['users'];
+  id: string
+  conversationUser: Conversation['users']
 }) => {
-  const { recipient, recipientEmail } = useRecipient(conversationUser);
+  const { recipient, recipientEmail } = useRecipient(conversationUser)
 
   return (
     <StyledContainer>
       <RecipientAvatar recipientEmail={recipientEmail} recipient={recipient} />
       <span>{recipientEmail}</span>
     </StyledContainer>
-  );
-};
+  )
+}

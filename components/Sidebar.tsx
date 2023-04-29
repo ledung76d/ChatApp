@@ -1,34 +1,34 @@
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import styled from 'styled-components';
-import ChatIcon from '@mui/icons-material/Chat';
-import MoreVerticalIcon from '@mui/icons-material/MoreVert';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SearchIcon from '@mui/icons-material/Search';
-import Button from '@mui/material/Button';
-import { auth, db } from '@/config/firebase';
-import { signOut } from 'firebase/auth';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import * as EmailValidator from 'email-validator';
-import { addDoc, collection, query, where } from 'firebase/firestore';
-import { useCollection } from 'react-firebase-hooks/firestore';
-import { Conversation } from '@/types';
-import { ConversationSelect } from './ConversationSelect';
+import Avatar from '@mui/material/Avatar'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import styled from 'styled-components'
+import ChatIcon from '@mui/icons-material/Chat'
+import MoreVerticalIcon from '@mui/icons-material/MoreVert'
+import LogoutIcon from '@mui/icons-material/Logout'
+import SearchIcon from '@mui/icons-material/Search'
+import Button from '@mui/material/Button'
+import { auth, db } from '@/config/firebase'
+import { signOut } from 'firebase/auth'
+import TextField from '@mui/material/TextField'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import { useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import * as EmailValidator from 'email-validator'
+import { addDoc, collection, query, where } from 'firebase/firestore'
+import { useCollection } from 'react-firebase-hooks/firestore'
+import { Conversation } from '@/types'
+import { ConversationSelect } from './ConversationSelect'
 const StyledContainer = styled.div`
   height: 100vh;
   min-width: 300px;
   max-width: 350px;
   overflow-y: scroll;
   border-right: 1px solid whitesmoke;
-`;
+`
 
 const StyledHeader = styled.div`
   display: flex;
@@ -41,90 +41,92 @@ const StyledHeader = styled.div`
   top: 0;
   background-color: white;
   z-index: 1;
-`;
+`
 const StyledSearch = styled.div`
   display: flex;
   align-items: center;
   padding: 15px;
   border-radius: 2px;
-`;
+`
 
 const StyledUserAvatar = styled(Avatar)`
   cursor: pointer;
   :hover {
     opacity: 0.8;
   }
-`;
+`
 
 const StyledSearchInput = styled.input`
   outline: none;
   border: none;
   flex: 1;
-`;
+`
 
 const StyledSidebarButton = styled(Button)`
   width: 100%;
   border-top: 1px solid whitesmoke;
   border-bottom: 1px solid whitesmoke;
   font-weight: 700;
-`;
+`
 
 export const Sidebar = () => {
-  const [loggedInUser, _loading, _error] = useAuthState(auth);
+  // eslint-disable-next-line no-unused-vars
+  const [loggedInUser, _loading, _error] = useAuthState(auth)
 
   const [isOpenNewConversationDialog, setIsOpenNewConversationDialog] =
-    useState(false);
+    useState(false)
 
-  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('')
   const toggleConversationDiaLog = (isOpen: boolean) => {
-    setIsOpenNewConversationDialog(isOpen);
+    setIsOpenNewConversationDialog(isOpen)
     if (!isOpen) {
-      setRecipientEmail('');
+      setRecipientEmail('')
     }
-  };
-  const isInvitingSelf = recipientEmail === loggedInUser?.email;
+  }
+  const isInvitingSelf = recipientEmail === loggedInUser?.email
 
   const handleClose = () => {
-    toggleConversationDiaLog(false);
-  };
+    toggleConversationDiaLog(false)
+  }
 
   const queryGetConversationsForCurrentUser = query(
     collection(db, 'conversations'),
     where('users', 'array-contains', loggedInUser?.email)
-  );
+  )
+  // eslint-disable-next-line no-unused-vars
   const [conversationSnapshot, __loading, __error1] = useCollection(
     queryGetConversationsForCurrentUser
-  );
+  )
 
   // Check if conversation already exists before creating a new one
   const isConversationAlreadyExists = (recipientEmail: string) => {
     return !!conversationSnapshot?.docs.find((doc) =>
       (doc.data() as Conversation).users.includes(recipientEmail)
-    );
-  };
+    )
+  }
 
   const createConversation = async () => {
-    if (!recipientEmail) return;
+    if (!recipientEmail) return
     if (
       EmailValidator.validate(recipientEmail) &&
       !isInvitingSelf &&
       !isConversationAlreadyExists(recipientEmail)
     ) {
-      console.log('createConversation');
       await addDoc(collection(db, 'conversations'), {
         users: [loggedInUser?.email, recipientEmail],
-      });
+      })
     }
-    handleClose();
-  };
+    handleClose()
+  }
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      await signOut(auth)
     } catch (error) {
-      console.log('LOGOUT ERROR', error);
+      // eslint-disable-next-line no-console, no-undef
+      console.log('LOGOUT ERROR', error)
     }
-  };
+  }
 
   return (
     <StyledContainer>
@@ -150,7 +152,7 @@ export const Sidebar = () => {
       </StyledSearch>
       <StyledSidebarButton
         onClick={() => {
-          toggleConversationDiaLog(true);
+          toggleConversationDiaLog(true)
         }}
       >
         Start a new conversation
@@ -181,7 +183,7 @@ export const Sidebar = () => {
             variant='standard'
             value={recipientEmail}
             onChange={(e) => {
-              setRecipientEmail(e.target.value);
+              setRecipientEmail(e.target.value)
             }}
           />
         </DialogContent>
@@ -193,5 +195,5 @@ export const Sidebar = () => {
         </DialogActions>
       </Dialog>
     </StyledContainer>
-  );
-};
+  )
+}

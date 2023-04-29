@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import CircularProgress from '@mui/material/CircularProgress';
-import ChatAppLogo from '../assets/Logo.png';
-import Image from 'next/image';
+import styled from 'styled-components'
+import CircularProgress from '@mui/material/CircularProgress'
+import ChatAppLogo from '../assets/Logo.png'
+import Image from 'next/image'
 
 const StyledContainer = styled.div`
   display: flex;
@@ -9,11 +9,11 @@ const StyledContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-`;
+`
 
 const StyledImageWrapper = styled.div`
   margin-bottom: 10px;
-`;
+`
 
 export const Loading = () => {
   return (
@@ -23,5 +23,5 @@ export const Loading = () => {
       </StyledImageWrapper>
       <CircularProgress />
     </StyledContainer>
-  );
-};
+  )
+}
