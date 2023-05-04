@@ -2,6 +2,7 @@ import { useRecipient } from '@/hooks/useRecipient'
 import { Conversation } from '@/types'
 import styled from 'styled-components'
 import RecipientAvatar from './RecipientAvatar'
+import { useRouter } from 'next/router'
 
 const StyledContainer = styled.div`
   display: flex;
@@ -15,7 +16,6 @@ const StyledContainer = styled.div`
 `
 
 export const ConversationSelect = ({
-  // eslint-disable-next-line no-unused-vars
   id,
   conversationUser,
 }: {
@@ -24,8 +24,14 @@ export const ConversationSelect = ({
 }) => {
   const { recipient, recipientEmail } = useRecipient(conversationUser)
 
+  const router = useRouter()
+
+  const onSelectConversation = () => {
+    router.push(`/conversations/${id}`)
+  }
+
   return (
-    <StyledContainer>
+    <StyledContainer onClick={onSelectConversation}>
       <RecipientAvatar recipientEmail={recipientEmail} recipient={recipient} />
       <span>{recipientEmail}</span>
     </StyledContainer>
