@@ -1,3 +1,4 @@
+import ConversationScreen from '@/components/ConversationScreen'
 import { Sidebar } from '@/components/Sidebar'
 import { auth, db } from '@/config/firebase'
 import { Conversation, IMessage } from '@/types'
@@ -22,11 +23,20 @@ const StyledContainer = styled.div`
   display: flex;
 `
 
+const StyledConversationContainer = styled.div`
+  flex-grow: 1;
+  overflow-y: scroll;
+  height: 100vh;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+`
+
 const Conversations = ({ conversation, messages }: Props) => {
   // eslint-disable-next-line no-unused-vars
   const [loggedInUser, __loading, __error] = useAuthState(auth)
-  // eslint-disable-next-line no-console, no-undef
-  console.log('conversation', messages)
   return (
     <StyledContainer>
       <Head>
@@ -34,8 +44,9 @@ const Conversations = ({ conversation, messages }: Props) => {
       </Head>
 
       <Sidebar />
-
-      <h1>Message</h1>
+      <StyledConversationContainer>
+        <ConversationScreen conversation={conversation} messages={messages} />
+      </StyledConversationContainer>
     </StyledContainer>
   )
 }
